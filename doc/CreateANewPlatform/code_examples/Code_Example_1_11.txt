@@ -1,0 +1,9 @@
+\begin{lstlisting}[frame=single, language=C++]
+template<typename AGENTTYPE, typename OUTPUT_TYPE, 
+	typename PACKAGE_TYPE>
+std::string AbstractJamiiAction<AGENTTYPE, OUTPUT_TYPE, 
+	PACKAGE_TYPE>::getOutputRepresentation
+	(OUTPUT_TYPE filetype, bool writeOnlyFiltered){
+    std::stringstream s;
+    return s.str();
+}\end{lstlisting}

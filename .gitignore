@@ -1,0 +1,11 @@
+*.aux
+*.log
+*.toc
+*.out
+*.bbl
+*.blg
+*.gz
+*.d
+*.o
+doc/RHPC_SMPLE_UsersManual.pdf
+

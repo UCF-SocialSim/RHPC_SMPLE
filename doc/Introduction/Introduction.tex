@@ -1,0 +1,32 @@
+%!TEX root =  RHPC_SMPLE_UsersManual.tex
+
+\chapter[Introduction]{Introduction} \label{chap:Introduction}
+
+Repast HPC Social Media Platform Emulator (RHPC SMPLE) is a toolkit for building agent-based models of behavior and information spread on social media platforms. The toolkit allows creation of a simulated social media platform with users who can engage with that platform, share content, and interact. The models created are agent-based models in the sense that the users who are interacting with the platform are agents and the platform itself is an agent. As agents, platforms can make decisions about what information they share among users; users as agents can make decisions about how they use the social media platform. The simulated platform can provide functionality representative of real-world social media platforms (e.g., posting, liking, rating, following, etc.). 
+
+RHPC SMPLE is constructed from Repast HPC. Repast HPC is a toolkit for building large-scale agent-based models that can be parallelized for execution in high performance parallel computing environments. When an agent-based simulation is parallelized, the parallelism results in a challenge of keeping simulation states consistent across processes while allowing parallel execution of portions of the simulation on each process. Repast HPC handles the inter-process communication and synchronization issues in flexible and customizable ways while allowing the model developer to avoid writing low-level parallelization code. RHPC SMPLE is written in C++ to be usable on Top 500 HPC systems, potentially allowing social media simulations at real-world scales, i.e., millions or billions of agents.
+
+\section{How to Use this Manual}
+
+This manual provides a comprehensive guide to building social media emulators in \rhpc and to deploying and benchmarking these emulators. The guide consists of the following chapters:
+
+% Marin- Pls make into itemized list, use chapter references and italics for all chapters as in the first one, and otherwise prettify as needed (make sure the titles are correct, etc.)
+\begin{itemize}
+\item Chapter \ref*{chap:Installation}, \hyperref[chap:Installation]{\textbf{Installation}}, provides technical details for installing RHPC\_SMPLE, including requirements and dependencies.
+\item Chapter \ref*{chap:OverviewOfFunctionality}, \hyperref[chap:OverviewOfFunctionality]{\textbf{Overview of Functionality}}, provides a detailed description of the functionality of the \rhpc toolkit.
+\item Chapter \ref*{chap:CodeStructure}, \hyperref[chap:CodeStructure]{\textbf{Code Structure}}, gives a tour of the source code for the toolkit and how it is organized.
+%parallelization is an advanced topic and the simulation currently can't be parallelized easily, so this is a bit down the road...
+%\item Chapter /href{Parallelization}, \textbf{Parallelization}, discusses the challenges of parallelizing an ABM and how these are addressed in the \rhpc toolkit.
+\item Chapter \ref*{chap:CreateANewPlatform}, \hyperref[chap:CreateANewPlatform]{\textbf{Create a New Platform}}, gives step-by-step instructions for creating a new abstract social media platform in the \rhpc toolkit.
+\item Chapter \ref*{chap:ExtendAPlatformToADemo}, \hyperref[chap:ExtendAPlatformToADemo]{\textbf{Extend a Platform to a Demo}}, gives instructions for creating a specific implementation of a social media platform in the \rhpc toolkit.
+\item Chapter \ref*{chap:CreateUserAgents}, \hyperref[chap:CreateUserAgents]{\textbf{Create User Agents}}, describes how to create agents that use the implemented social media platform. 
+\item Chapter \ref*{chap:CreateScenarios}, \hyperref[chap:CreateScenarios]{\textbf{Create Scenarios}}, gives instructions for how to create scenarios that encapsulate a specific use case for a model of one or more social media platforms, users, and exogenous events to which users and platforms respond. 
+\item Chapter \ref*{chap:Output}, \hyperref[chap:Output]{\textbf{Output}}, discusses how to create structures that output to files.
+\item Chapter \ref*{chap:LaunchingASimulation}, \hyperref[chap:LaunchingASimulation]{\textbf{Launching a Simulation}}, describes how to launch the simulation (including parallelized versions) and how to specify simulation options from the command line.
+%\item Appendix \ref*{chap:Benchmarking}, \hyperref[chap:Benchmarking]{\textbf{Benchmarking}}, describes how to create performance tests at scale and in parallelized environments for strong and weak scaling tests.
+\end{itemize}
+
+
+\section{Acknowledgements}
+%specific text that we have to use to acknowledge funders
+%The funders (DARPA), the creators, the team, etc.

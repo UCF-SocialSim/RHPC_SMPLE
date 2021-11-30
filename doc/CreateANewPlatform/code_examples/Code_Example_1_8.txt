@@ -1,0 +1,9 @@
+\begin{lstlisting}[frame=single, language=C++]
+template<typename ACTIONTYPE>
+void AbstractJamiiPostAgent<ACTIONTYPE>::receiveAction(
+                ACTIONTYPE& action){
+	informationIDs.insert(
+	    action.payload.informationIDs.begin(), 
+	    action.payload.informationIDs.end());
+}
+\end{lstlisting}

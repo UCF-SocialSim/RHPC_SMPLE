@@ -1,0 +1,85 @@
+\documentclass[11pt]{book}
+\usepackage{geometry}        
+\geometry{letterpaper}    
+\usepackage[parfill]{parskip}  
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage{listings}
+\usepackage{adjustbox}
+\usepackage{nameref}
+\usepackage[toc, page]{appendix}
+
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\usepackage[colorlinks=true, pdfstartview=FitV, linkcolor=blue, 
+            citecolor=blue, urlcolor=blue]{hyperref}
+\usepackage{pgfplots}
+\usepackage{float}
+\restylefloat{table}
+
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{exercise}{Exercise}
+\newtheorem{remark}{Remark}
+\newtheorem{example}{Example}
+\newtheorem{warning}{Warning}
+\newcommand{\rhpc}{RHPC\_SMPLE }
+\renewcommand{\lstlistingname}{Sample Code}
+
+% Marin: This can be used to do the footnote = hyperlink in one step
+\newcommand\footlink[1]{\footnote{\href{#1}{#1}}}
+
+\def\grad{ \mbox{grad}}
+\def\curl{ \mbox{curl}}
+\def\div{ \mbox{div}}
+\def\U{\ensuremath {\cal U}}
+\def\S{\ensuremath {\cal S}}
+\def\V{\ensuremath {\cal V}}
+\def\R{\ensuremath {\cal R}}
+\def\tr{\ensuremath {\mbox{tr}}}
+
+
+
+
+% ------------------- Title and Author -----------------------------
+\title{Repast HPC Social Media Platform Emulator \\(RHPC SMPLE)}
+\author{User Guide}
+
+\begin{document}
+
+
+\frontmatter
+\maketitle
+
+\tableofcontents	
+
+\mainmatter
+\include{Introduction/Introduction}
+\include{Installation/Installation}
+\include{OverviewOfFunctionality/OverviewOfFunctionality}
+\include{CodeStructure/CodeStructure}
+%\include{Parallelization/Parallelization}
+\include{CreateANewPlatform/CreateANewPlatform}
+\include{ExtendAPlatformToADemo/ExtendAPlatformToADemo}
+%\include{CreateUserAgents/CreateUserAgents}
+\include{CreateScenarios/CreateScenarios}
+\include{Explanations/Explanations}
+\include{Output/Output}
+\include{LaunchingASimulation/LaunchingASimulation}
+
+\bibliographystyle{plain-annote}
+\bibliography{mybibliography}
+
+%\begin{appendices}
+%\include{Benchmarking/Benchmarking}
+%\include{LicenseInformation/LicenseInformation}
+%	\end{appendices}
+
+
+\end{document}
+\end
+

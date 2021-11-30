@@ -1,0 +1,8 @@
+\begin{lstlisting}[frame=single, language=C++]
+class JamiiEventCounter: 
+         public SocialEventCounter<JamiiEventType>{
+public:
+	JamiiEventCounter();
+	virtual ~JamiiEventCounter();
+};
+\end{lstlisting}

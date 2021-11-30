@@ -1,0 +1,46 @@
+
+# Logger Types:
+#   DEBUG, INFO, WARN, ERROR
+#################################################
+# Template Logger
+#                                          #NEEDED,    #NEEDED    , #OPTIONAL
+#logger.<ACCESS_NAME>                    =   <LOGGER_TYPE>, <APPENDER_NAME>, <STDOUT>
+#
+#appender.<APPENDER_NAME>                = RollingFileAppender
+#appender.<APPENDER_NAME>.MaxBackupIndex = #
+#appender.<APPENDER_NAME>.File           = ./logs/<FILE_NAME>.log
+#appender.<APPENDER_NAME>.MaxFileSize    = #
+#################################################
+# Root Logger
+logger.root             =   INFO, R    
+logger.repast.system    =   DEBUG, R
+ 
+appender.R = RollingFileAppender
+appender.R.MaxBackupIndex =  1
+appender.R.File = ./logs/repast.log
+appender.R.MaxFileSize = 300000
+#################################################
+# General Logger
+logger.general          =   INFO, G
+
+appender.G = RollingFileAppender
+appender.G.MaxBackupIndex = 1
+appender.G.File = ./logs/general.log
+appender.G.MaxFileSize = 300000
+#################################################
+# Initialization Logger
+logger.init             =   INFO, I
+
+appender.I = RollingFileAppender
+appender.I.MaxBackupIndex = 1
+appender.I.File = ./logs/init.log
+appender.I.MaxFileSize = 300000
+#################################################
+# Twitter Logger
+logger.twitter          =   INFO, TW
+
+appender.TW = RollingFileAppender
+appender.TW.MaxBackupIndex = 1
+appender.TW.File = ./logs/twitter.log
+appender.TW.MaxFileSize = 300000
+#################################################

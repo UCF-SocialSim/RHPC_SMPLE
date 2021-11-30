@@ -1,0 +1,43 @@
+\begin{lstlisting}[frame=single, language=C++]/* Custom Network Components */
+template<typename AGENTTYPE, typename EI> // EdgeInfo
+class JamiiEdge : public repast::RepastEdge<AGENTTYPE>{
+private:
+    EI _edgeInfo;
+
+ public:
+    JamiiEdge();
+    JamiiEdge(AGENTTYPE* source, AGENTTYPE* target);
+    JamiiEdge(AGENTTYPE* source, AGENTTYPE* target, double weight);
+    JamiiEdge(AGENTTYPE* source, AGENTTYPE* target, double weight, 
+    EI edgeInfo);
+
+    JamiiEdge(boost::shared_ptr<AGENTTYPE> source, 
+    	boost::shared_ptr<AGENTTYPE> target);
+    JamiiEdge(boost::shared_ptr<AGENTTYPE> source, 
+    	boost::shared_ptr<AGENTTYPE> target, double weight);
+    JamiiEdge(boost::shared_ptr<AGENTTYPE> source, 
+    	boost::shared_ptr<AGENTTYPE> target, double weight, 
+	EI edgeInfo);
+
+
+    EI& getEdgeInfo();
+    void setEdgeInfo(EI edgeInfo);
+
+    // Querying
+    int     numPosts(){          			
+    				return _edgeInfo.getCount(POST); }
+
+    bool    any(){                              
+    				return !(_edgeInfo.isEmpty()); }
+
+    // Updating
+    void	logEvent(JamiiEventType event)
+    		{ _edgeInfo.recordEvent(event); }
+
+
+	int     getTotalEvents(){
+		  return numPosts();
+	}
+
+};
+\end{lstlisting}

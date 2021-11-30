@@ -1,0 +1,215 @@
+%!TEX root =  RHPC_SMPLE_UsersManual.tex
+
+\chapter{Create a New Platform} \label{chap:CreateANewPlatform}
+
+\par The main purpose of the \rhpc toolkit is to allow the creation of a functionally faithful representation of a social media platform. The first step in this is the creation of a new platform object. In general, the practice is to create the platform abstractly at an upper level of implementation, and to do so in a way that allows a second customizable level. The upper level captures the known functionality of the platform, while the lower level permits the implementation of the user and platform behavior that is the object of some specific line of research. For example, the upper level may permit a piece of content to be `liked,' while the lower level provides implementations that allow user agents to decide which content elements they will perform this action on.
+
+This chapter gives instructions on how to do create the abstract objects at the upper level of the implementation. The overall sequence is:
+
+\begin{enumerate}
+	\item Create all Header and Source Files
+	\item Create Definitions for Required Elements
+	\item Create Feed 
+	\item Create Abstract Versions of Agent, User Agent and Content Agent
+		\begin{itemize} \item Agent Type \item Action Type \item Relationship Type \end{itemize}
+	\item Create a Payload Object
+	\item Create an Action Object
+	\item Create Required Network Elements
+	\begin{itemize} \item Edge Information Objects \item Edges \end{itemize}
+	\item Feed Query
+	\item Create a Platform Using the Above Objects
+\end{enumerate}
+
+\section{Step 1: Create All Header and Source Files}
+The platform code will require a version of all of the files shown in Table \ref{table:PlatformRequiredFiles}. Note that while some occur in pairs of header and source files, others need only header files.
+
+\begin{table}[H]
+\begin{center}
+\caption{Files required to implement a new platform}
+\label{table:PlatformRequiredFiles}
+\begin{tabular}{l | l}
+\hline
+ Header Files & Source Files \\
+\hline
+ Definitions.h & \\
+ Feed.h & Feed.cpp \\
+ Agent.h & \\
+ UserAgent.h & UserAgent.cpp \\
+ ContentAgent.h &  \\
+ Payload.h & Payload.cpp \\
+ Action.h & Action.cpp \\
+ Network.h & \\	
+ FeedQuery.h & FeedQuery.cpp \\
+ Platform.h & \\
+\end{tabular}
+\end{center}
+\end{table}
+
+Files can have different names than those shown here, e.g. customized for a particular platform. For example, ``UserAgent.cpp" could be named ``FoobookUserAccount.cpp". 
+
+\subsection{Step 2: Create Definitions for Required Elements}
+Creating \textbf{definitions} is done by modifying \emph{Definitions.h}. At this level, three elements must be defined:
+
+\begin{enumerate}
+\item Agent types
+\item Action types
+\item Relationship types (if applicable)
+\end{enumerate}
+
+Additionally, this file must provide a forward declaration for the class that will be the platform, such as in the example below.
+% TODO: which file? is this actually shown in the upcoming example, or am I assuming?
+% This may be revised- we would like to remove these forward declarations
+
+The example below defines two types of \textbf{agents}, \textit{users} and \textit{content }(termed `posts'). It also defines two types of \textbf{actions}: one begins a new thread and the other posts to a given thread. No relationships are defined in this example. 
+
+\input{CreateANewPlatform/code_examples/Code_Example_1_1.txt}
+	
+\subsection{Step 3: Create the Feed Architecture}
+A \textbf{feed} is, fundamentally, a list of elements. It is similar to the `feed' that a user of a social media platform provides via the user interface (for example, friends' recent posts on Facebook). 
+
+In \rhpc, a feed can also contain an \textit{explanation} of why each element was placed into it.  A typical definition of the feed begins by declaring the class that contains this explanation (if needed). 
+
+Example:
+\input{CreateANewPlatform/code_examples/Code_Example_1_2.txt}
+
+In the above example, the \textit{explanation} is simple: a flag indicates whether or not the element was randomly selected.
+
+Note that the second constructor is \textbf{required}. A copy instructor is needed because explanations are transferred among feeds and copied.
+
+After the explanation, the \textbf{element} in the feed must be defined:
+
+\input{CreateANewPlatform/code_examples/Code_Example_1_3.txt}
+
+Finally, the \textbf{feed} itself must be defined:
+
+\input{CreateANewPlatform/code_examples/Code_Example_1_4.txt}
+
+Note that this implementation provides some methods that are used to select elements from the feed.
+% Internal note: We are likely to remove this when we move to the Feed Explanation being optional;
+% the change will allow the Feed to become a typedef, possibly eliminating the class altogther
+
+\subsection{Step 4: Create Abstract Versions of Agent, User Agent and Content Agent}
+As an agent-based model (ABM), agents are fundamental. In \rhpc, there are two kinds of agents: there are agents that represent \emph{users} (\textbf{user agents}) and agents that represent \emph{content} (\textbf{content agents}).
+
+Both of these derive from a single abstract class that is the basic \textbf{agent class} in the RHPC content and the fundamental `node' element in the RHPC network.
+
+\subsubsection{Step 4.1: Create the Abstract Version of the Agent}
+At this level, the \textbf{agent class} needs only to be defined abstractly. Templatize the agent class to accommodate an action type that will not be specified until lower in the class hierarchy.
+
+Example:
+\input{CreateANewPlatform/code_examples/Code_Example_1_5.txt}
+The individual procedures that the agent implements are:
+
+\begin{itemize}
+\item setCurrentRank(int):
+\item showName():
+\item writeName():
+\item placeInFeed(actor*, target*, subtarget*, action, explanation):
+\item setPlatform(platform*):
+\item getCountOfFeedElements():
+\item selectTarget(action\&):
+\end{itemize}
+
+\subsubsection{Step 4.2: Create the Abstract Version of the User Agent}
+An important aspect of \textbf{user agents} is that they represent \textit{user accounts}. This is not the same as representing \textit{users}. Users are people, and people can use multiple social media platforms (sometimes simultaneously!). User accounts, conversely, are platform-specific. They can perceive only things on that platform and can only take actions that the platform defines.
+
+
+Most user functionality is defined at the implementation level. Below this level in the class hierarchy, so the class need not hold much functionality. In fact, class is used below only as a demonstration.
+%Note: We may change this: Jamii accounts have reputation scores, and while we don't fully understand these yet, it's appropriate to add them here.
+
+Example:
+\input{CreateANewPlatform/code_examples/Code_Example_1_6.txt}
+
+\subsubsection{Step 4.3: Create the Abstract Version of the Content Agent}
+\textbf{Content agents} can be more robustly defined at this level than user agents can be.
+
+In the example below, the content agent has been endowed with a way to collect \textit{Information ID}values in the \textit{informationIDs} set.
+
+Example:
+\input{CreateANewPlatform/code_examples/Code_Example_1_7.txt}
+
+The content agent is further specified by the \textit{receiveAction} method. This method is \textbf{required} because it allows content agents to be acted upon by users. 
+
+The example below defines one critical piece of functionality, which is receiving the Information ID values and storing them in the set:
+
+\input{CreateANewPlatform/code_examples/Code_Example_1_8.txt}
+
+\subsection{Step 5: Create the Base Class for the Payload}
+A \textbf{payload} is a package of data that is shipped with an action; an action will contain a payload, and the payload will be the `stuff' that an action includes.%revisit
+
+Generally, the payload object represents the genuine \textit{content} portion of the content object. If a content agent contains elements like an ID, references to the user agent that created it, etc., it will also contain some content. This will be domain-specific but could include anything that is relevant in a given simulation: text, hashtags, abstract pieces of information, etc.
+
+% Note: The Jamii implementation is currently another empty filler class, but we may extend this with a 'reaction'...
+
+\subsection{Step 6: Create the Action}
+As with a feed, an \textbf{action} can carry information that explains why the action was taken. Therefore the first component of an action is an \textit{ActionExplanation}.
+
+Example:
+\input{CreateANewPlatform/code_examples/Code_Example_1_9.txt}
+%Note: 'headings' is going to be eliminated, as will 'getRow()', this note also in 'Code_Example_1_9.txt'
+
+In the above example, the only portion of the explanation is \textit{becauseOtherUsersLiked}, which is a placeholder for more informative flags. Note that the \emph{Action Explanation} extends, and therefore contains, the \textit{FeedExplanation} defined above. Both of these are therefore extensions of \textbf{explanation}, which carries with it some inherent functionality (especially the ability to take one explanation and `add' it to another by performing a logical `or' on all boolean flags, etc.
+
+
+Example:
+\input{CreateANewPlatform/code_examples/Code_Example_1_10.txt}
+
+%The significant procedure is getOutputRepresentation. The documentation should indicate that this is required, but that the actual output will be determined by the file output type, and this not defined at this level, but will be implemented at the lower/ "implementation" level.
+
+\input{CreateANewPlatform/code_examples/Code_Example_1_11.txt}
+
+\subsection{Step 7: Create Required Network Elements}
+Defining a network involves defining \emph{flags}, \emph{counters}, and \emph{relationships}. The example below shows only counters. \textbf{Flags} are y/n and are used for things like ``X created Y" (true/false). \textbf{Counters} are used to count events (e.g., "1,234 likes").
+
+Below is an example of a basic counter that can count the number of Jamii events that occur between two agents.
+
+\input{CreateANewPlatform/code_examples/Code_Example_1_12.txt}
+
+\subsubsection{Step 7.1: Edge Information Objects}
+Counters can use these to make \textbf{edge information} objects. An edge information object stores a directed edge from two agents (e.g., from A to B). This is used in conjunction with flags/counters/relationships to indicate how A is related to B (e.g., ``A has 'liked' B 6 times).
+
+To implement this, extend the appropriate class:
+
+\input{CreateANewPlatform/code_examples/Code_Example_1_13.txt}
+
+\subsubsection{Step 7.2: Edges}
+
+After implementation, you can create an \textbf{edge} that contains the \textit{edge Information} object. This allows declaring a formal interface that can capture the appropriate semantics for the platform you are creating.
+\par Note that /emph{getNumPosts} is not intrinsic to \rhpc, but rather is defined by the fact that in Jamii there are 'Posts'. 
+
+\input{CreateANewPlatform/code_examples/Code_Example_1_14.txt}
+
+\subsection{Step 8: Create a structure for a Feed Query}
+A \textbf{feed query} is a class that contains the information needed for the platform to execute a query. In other words, it is a a set of criteria used to return a collection of content objects.
+
+The feed query can be a simple structure.
+\par Example:
+\input{CreateANewPlatform/code_examples/Code_Example_1_15.txt}
+
+\subsection{Step 9: Create a Platform Using the Above Objects}
+
+A platform must:
+\begin{enumerate} 
+	\item Allow creating and updating \textbf{user agents} and \textbf{content agents}
+	\begin{itemize} \item This includes setting local pointers \end{itemize}
+	\item Allow responding to \textbf{feed queries} by providing feeds that include relevant items
+	\item Allow performing \textbf{actions} from user accounts onto user or content nodes
+\end{enumerate}
+
+At this level, \textit{creating and updating} are not yet implemented. Implementation will happen at the lower level. Additionally, the responses to queries are not defined at this level; this is instead application-specific.
+
+Instead, the actions to be performed for the \textbf{API} (Application Programming Interface) are defined at this level. The API is a list of functions that a piece of software (or a social media platform) can perform.
+
+For Jamii,  the only actions are `post' and `comment' (see the definitions above). The relevant sections in the platform interface are:
+
+\begin{lstlisting}
+// API Functions
+void doAction(ACTIONTYPE action);
+void api_startThread(ACTIONTYPE action);
+void api_comment(ACTIONTYPE action);
+\end{lstlisting} 
+
+In this case, the first is generic and should pass to the appropriate semantic operation based on the action passed. The `startThread' and `comment' actions represent `posting' and `commenting.'
+
+Several other components of the platform may be defined at this level; look at the examples provided for details.
+

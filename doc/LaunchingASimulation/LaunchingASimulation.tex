@@ -1,0 +1,47 @@
+%!TEX root =  RHPC_SMPLE_UsersManual.tex
+
+\chapter{Launching a Simulation}
+\label{chap:LaunchingASimulation}	
+
+\section{Specifying Properties}
+It is almost always necessary to run multiple variations of a simulation in which crucial parameters or features are varied; this is done to explore multiple possible outcomes. In RHPC\_SMPLE, this is done by specifying \textbf{properties}. Properties are things like parameters (e.g., coefficients) or switches (e.g., alternative algorithms) that change the way the simulation operates.
+\par For example, consider the property \textit{agent speed}. 
+For variation, run a scenario three times with agent speed set at 1, 2, and 3. 
+The result of this is doing multiple runs with multiple property settings. 
+
+There are two ways to specify properties for running a simulation:
+  \begin{itemize} 
+  	\item Specify properties in a properties file. This can include a main file and/or a file for each platform.
+	\item Give the name and the value of a property when the simulation is run from the command line. This can include prefixing properties. 
+\end{itemize}
+
+\emph{The properties file is required}, but specifying individual properties on the command line when the simulation is run is optional.
+If used, the values on the command line override any that are in the properties file. Note that the scenario can also define properties with default values if they are not present in the properties file or the command line. However, the scenario should also set a flag for making default properties invalid after the collection of properties is written to the metadata file. The importance of this flag is that after properties are written to the metadata file, no changes can be made to the metadata file. 
+	
+\subsubsection{Specify Properties in a Properties File}
+A common way of configuring the simulation to run with alternative sets of properties is to specify values in a main file and/or a file for each platform. 
+In other words, each platform can be controlled through the main file, which is the \textit{multi-properties (mp) file}, or individually through different files.
+The values in the main file are read by \rhpc into the simulation, thereby determining how it runs.  
+
+
+
+\subsubsection{Give the Name of a Property for a File}
+ There is an additional way to provide parameters to individual simulation runs: it is possible to override properties by adding to the \textit{command line}. It can be useful to be able to run the simulation from a command line (or within a script) and to explicitly specify parameters without modifying a properties file. 
+This way, properties prefixes are included. Appropriate prefixes are given in the example below.
+ 
+Consider that the original property name to be given is \textit{speed.of.agents}. 
+
+One of several platforms to specify from the command line is \textit{Twitter}. 
+Twitter is specified with with prefix \textit{TW}. 
+So, for Twitter, use \textit{TW\_\_speed.of.agents}. (\textbf{\textit{NOTE}}: two underscores are used.)
+
+Likewise, for Jamii, use prefix \textit{JM}: \textit{JM\_\_speed.of.agents}.
+%do we need to list other platforms? 
+
+ To specify \textit{\textbf{all}} platforms from the command line, use prefix \textit{MP}:
+ \textit{\\MP\_\_speed.of.agents}.
+ 
+ 
+ A common use of this approach is to keep a file with \textit{default} properties, specifying any properties that vary from the default when the simulation is invoked.
+
+

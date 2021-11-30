@@ -1,0 +1,21 @@
+\begin{lstlisting}[frame=single, language=C++]
+/* Jamii_User_Agent.h */
+#ifndef INCLUDE_JAMII_USER_AGENT_H
+#define INCLUDE_JAMII_USER_AGENT_H
+
+namespace jamii{
+
+class AbstractJamiiUserAgent{
+
+public:
+
+	AbstractJamiiUserAgent();
+	virtual ~AbstractJamiiUserAgent();
+
+};
+
+} // End namespace jamii
+
+
+#endif /* INCLUDE_JAMII_USER_AGENT_H */
+\end{lstlisting}

@@ -1,0 +1,23 @@
+\begin{lstlisting}[frame=single, language=C++]
+template<typename AGENTTYPE, typename OUTPUT_TYPE, 
+	typename PACKAGE_TYPE>
+class AbstractJamiiAction:
+		public SocialNetwork_Action<JamiiEventType, 
+		AGENTTYPE, SocialNetwork_AbstractElement
+		<JamiiAgentType>, JamiiPayload, 
+		JamiiActionExplanation, 
+		OUTPUT_TYPE, PACKAGE_TYPE>{
+
+public:
+
+	AbstractJamiiAction(JamiiEventType event, AGENTTYPE* 
+	actingElement = NULL, AGENTTYPE* targetElement = NULL);
+	virtual ~AbstractJamiiAction();
+
+	virtual std::string getOutputRepresentation(OUTPUT_TYPE 
+		filetype, bool writeOnlyFiltered = false);
+
+	virtual std::string getDomain();
+
+};
+\end{lstlisting}

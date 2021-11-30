@@ -1,0 +1,9 @@
+stages:
+  - build
+  - test
+  
+job1:
+  image: registry.gitlab.com/caslab_ucf/social_sim/rhpc-smple/image:latest
+  stage: build
+  script:
+    make

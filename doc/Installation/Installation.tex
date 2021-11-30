@@ -1,0 +1,35 @@
+%!TEX root =  RHPC_SMPLE_UsersManual.tex
+
+\chapter{Installation} \label{chap:Installation}
+
+% Really this section needs to be resolved into separate sections:
+
+%     Install MPI or confirm that it is already installed on your system
+%     Install NetCDF or confirm that it is already installed on your system
+%     Install the latest version of Boost (or confirm that it is already on your system)
+%     Install Repast HPC on your system
+%     Modify the rhpc_smple makefile.env file to point to the locations of these elements on your system
+%     Invoke compilation using your MPI-provided compiler (or manually invoking MPI) 
+%     If you are creating a new platform (not one of the pre-packaged ones) create a new implementation for your model; this is at the level of 'platform' in the demo directory.
+%     Modify the equivalent of the social-sim.env file to point to the appropriate elements in your system
+%     Compile and link to the appropriate libraries
+
+Use of \rhpc requires the installation of the Repast HPC toolkit. Repast HPC carries three main requirements:
+
+\begin{itemize} 
+   \item \textbf{The Boost C++ Library}: the Boost\footlink{www.boost.org} library is a set of C++ extensions on which Repast HPC relies heavily; \rhpc is tested with versions up through 1.76.
+   \item \textbf{NetCDF}: NetCDF\footlink{https://www.unidata.ucar.edu/software/netcdf/} is an extension to C++ that allows data read/write in a special dense format widely used in high-performance computing.
+   \item \textbf{curl}: The curl library\footlink{https://curl.se/libcurl/} is a library that permits file transfers using multiple protocols.
+\end{itemize}
+
+Additionally, Repast HPC must be installed in a system that has an implementation of MPI (Message Passing Interface). MPI is a system that allows launching programs across multiple processes and manages the communication that occurs among these processes. Implementing MPI is a standard parallel processing operation, so any HPC system will likely have this installed; consult your system administrator. %to learn more? if not? if unsure? to download?
+It may be possible to install MPI on a laptop, desktop, or AWS instance. Common implementations of MPI are OpenMPI\footlink{www.open-mpi.org} and MPICH\footlink{www.mpich.org}. 
+
+Repast HPC can be installed by compiling against, and linking to, the Boost and NetCDF libraries and using your system's appropriate MPI compiler.
+
+Once this is done, \rhpc can be installed by compiling against, and linking to, the Boost, NetCDF, and Repast libraries using the makefile included. To use this makefile, modify the file \textit{rhpc\_smple.env} and update the locations of Boost, NetCDF, and Repact HPC on your system. When this is built, it will create a new library, rhpc\_smple.lib. % CHECK THE NAME OF THE ENV FILE AND THE LIB
+
+Once \rhpc is installed, you can compile using the header files in the \textit{include} directory, and build linking to the rhpc\_smple.lib library. % Check whether this a static or dynamic linking library?
+
+
+

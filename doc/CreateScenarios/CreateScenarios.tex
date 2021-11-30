@@ -1,0 +1,151 @@
+%!TEX root =  RHPC_SMPLE_UsersManual.tex
+
+\chapter{Create Scenarios} \label{chap:CreateScenarios}
+\par Once a platform has been created, it is necessary to create the architecture of a simulation around it; in terms of functonality, this includes such things as initializing a population of agents, scheduling actions for the agents to perform, creating a collection of external events to which these agents will respond, etc.
+
+The coding structure that does this in \rhpc is the \textbf{Scenario}. Scenarios are containers objects that store instances of platforms as well as other elements of the outside world, and manage the operation of these elements. Scenarios are like the `sheep dog' of platforms: the elements required to simulate a social media platform, including the platform itself and aspects of the world in which it exists, are assembled and managed by the scenario. 
+
+\par Scenarios provide a means of exploring potential futures (rather than just one future) by presenting outcomes of potential decisions. Because of this, scenarios are used for trend prediction, such as with social media. This can work because scenarios represent the world in which platforms exist.
+Incorporating other elements of the external world into a scenario as exogenous data sources can help to see realistic potential futures.
+
+\section{Creating Scenarios}
+Building scenarios involves coding an object that extends a scenario class from the \rhpc toolkit. A class has four discrete sections to it:
+\begin{enumerate}
+	\item Construction 
+	\item Initialization 
+	\item Scenario Operation 
+	\item Teardown
+\end{enumerate}
+
+Examples of these steps can be see in the demos provided in the xamples directories. Note that it is common to create a parent class that captures the generalized functions of a scenario, and then child classes th provide the platform-specific details; this is followed in the demo code, with \textit{Base\_Scenario.h} and \textit{SimpleTwitterScenario.h}.
+
+\subsection{Construction}
+There are six steps to the construction step of scenario creation. The constructor needs to set the rank value, collect any relevant global properties, create an instance of the platform, initialize any output files, create instances of collections of exogenous data, and create and add any subscenarios. Each of these requirements is explained below.
+
+\subsubsection{Set the Rank Value}
+The constructor sets the rank using the following code:
+	\begin{lstlisting}[frame=single, language=C++]
+  	rank = world->rank();
+	\end{lstlisting}
+
+\subsubsection{Collect any Relevant Properties}
+\par Scenarios can use properties (from properties files or the command line; see Chapter \ref{chapter:LaunchingASimulation}). The scenario can also use properties with default values that are used if no specification of the property is present in the properties file or the command line. If the properties were not specified originally, they are added to the properties collection with their default values.
+
+\par There is an important consideration with default properties: Any auditable record of property values---that is, a file that is written that contains the values of the properties used for a specific simulation run---must be written after any default properties are specified. Changes to properties that are made after the audit file is written do not, of course, appear in the record, rendering the record incomplete or inaccurate. To prevent this, the \textit{writeMetadataFile} function of the scenario object sets a flag that makes the use of default values impossible; any call to \textit{setPropertyDefault} or \textit{getPropertyWithDefault} after this flag is set will cause an error.
+
+\subsubsection{Create an Instance of the Platform}
+This is achieved simply; here, `world' means a connection to the MPI Communicator object and `this' is the scenario itself.
+
+\begin{lstlisting}[frame=single, language=C++]
+foobook = new Foobook(world, this)
+\end{lstlisting}
+	
+\subsubsection{ Initialize any Output Files}
+See \ref{chap:Output}
+
+\subsubsection{Create Instances of Collections of Exogenous Data}
+This is an optional but common step: if the simulation is relying on exogenous data (like lists of event counts per step, or data that informs the agents' actions), it can be initialized here.
+
+\subsubsection{Create and Add any Subscenarios}
+\par Commonly, a scenario will be a specification for one platform; it can manage everything that is needed for that platform to be used in a larger simulation. However, simulations often use multiple platforms simultaneously. To achieve this, the ability to nest scenarios inside one another is used. The strategies are to create the overarching scenario that represents the entire simulated world, to create the separate scenarios that represent individual platforms, and then to add the platform scenarios as \textbf{subscenarios} to the overarching scenario.
+
+\par If this is done properly, \rhpc will automatically handle both initialization and operation of the overarching scenario and all its subscenarios. At the toolkit level, functionality is defined that calls functions on a scenario and its subscenarios, so that actions cascade downward. For example, when the call is made to \textit{initUserToUserLinks}, the parent scenario first calls the equivalent function on its children, and then calls it on itself. This means that the initialization is triggered automatically for all levels.
+
+Subscenarios can be added using the following example:
+
+\begin{lstlisting}[frame=single, language=C++]
+std::string rdPropertiesFileName = 
+   properties->getProperty("rd.subscenario.properties.filename");
+repast::Properties* rdProps = 
+   new repast::Properties(rdPropertiesFileName, world);
+propagatePropertiesDownward("RD", rdProps);
+rdScenario = 
+   new CP6_RedditScenario(world, model, rdProps);
+redditFileWriter = 
+  new reddit::Reddit_FileWriter(reddit::Reddit_FileOutputTypes::
+  JSON, globalJSONOutput_ptr);
+rdScenario->reddit->fileWriters["REDDIT.JSON"] = 
+  redditFileWriter;
+addSubscenario("RD", rdScenario);
+\end{lstlisting}
+
+The first line determines the name of an extra properties file, which is loaded in the second line. The third line propagates the properties of the parent scenario downward if those properties begin with the ``RD\_\_" prefix. The fourth line creates the scenario; the fifth and sixth lines create a file writer using a global pointer and add it to the child scenario. The last line adds the subscenario to the parent scenario.
+	
+\par Properties can be sent downward from parent scenarios to child scenarios. This allows the user to specify properties using the different methods discussed in \ref{chap:LaunchingASimulation} and to send specific property values to specific subscenarios.
+
+
+
+\subsection{Initialization}
+Initializing the scenario means loading the data and creating the initial state for the simulation. This includes primarily nodes and the links among them, or:
+\par Nodes
+   \begin{itemize} 
+	\item Users
+	\item Content
+   \end {itemize}
+\par Links
+   \begin{itemize}
+	\item Content $\rightarrow$ Content links
+	\item User $\rightarrow$ Content links
+	\item User $\rightarrow$ User links
+	\item Content $\rightarrow$ User links
+   \end{itemize}
+
+%introduce table
+\begin{table}[H]
+\begin{center}
+\caption{Scenario Initialization Functions}
+\label{table:ScenarioInitializationFunctions}
+\begin{adjustbox}{max width=1.1\textwidth,center}
+\begin{tabular}{| c |}
+\hline
+initScenario() \\
+initUserAgents() \\
+initContentAgents() \\
+initContentToContentLinks() \\
+initUserToUserLinks() \\
+initUserToContentLinks() \\
+initContentToContentLinks() \\
+\hline
+\end{tabular}
+\end{adjustbox}
+\end{center}
+\end{table}
+
+The initialization functions fall into three categories: 
+\begin{enumerate} 
+	\item Initialize the overall scenario
+	\item Initialize the individuals nodes 
+		\begin{itemize} 
+			\item user
+			\item content
+		\end{itemize}
+	\item Initialize the links between nodes
+\end{enumerate}
+
+
+\par The list above shows the sequence in which the methods are executed. All are optional. They can be omitted if they do not apply in a specific scenario, but generally, \textit{initScenario} and at least either \textit{initUserAgents} or \textit{initContentAgents} will be needed.
+\par An important aspect of this sequence is that the \textit{initScenario} function typically collects data needed for the subsequent functions. One key example has to do with agent identifiers.
+\par Typically, files store agent identifiers as character strings. However, \rhpc does \textit{not} use these internally.  Once the simulation is running, it is difficult for one agent to interact with another on the basis of its identifier.  This is deliberate and derives from the core agent-based modeling tenet that the model stores relationships among agents, and the perception that any agent has of other agents in its world is mediated through these relationships.
+
+Through these relationships, it is possible for an agent to ask, ``What agents are near me in space?"  It is also possible to ask, ``What agents are connected to me via the network?"  When these queries are answered, the answer is a list of references to the other agents.  However, it is difficult to ask, ``Where is agent XZY?" 
+The reason for this difficulty is that in the absence of an existing relationship between the original agent and agent XYZ, there is no reason the original agent \textit{should} be interacting with XYZ. 
+
+One exception is provided by the toolkit, which is the selection of agents at random---a common ABM technique. The overall query functionality of the platform is another example: in theory, an agent can ask for a specific agent with which to interact, but only if it has received information about that agent. More generally, the query will ask for agents meeting a range of criteria.
+
+\par Because of this structure and limitation, \textit{the identifiers in the original data files are not used by the toolkit}. This is especially important during initialization, when the initialization files may say that agents (identified by strings) have a relationship, but these identifiers are lost when the load occurs. Instead, a sequence like this must be followed:
+\begin{enumerate} 
+	\item During \textit{initializeScenario}, make an empty map of identifiers and pointers to agents.
+	\item During \textit{initializeUserAgents} and/or \textit{initializeContentAgents}, make agents that correspond to those identifiers and store the pointers.
+	\item During \textit{initialize...Links()}, use the maps to retrieve pointers, and from these use the built-in \rhpc functions to establish connections among the agents.
+\end{enumerate}
+
+These maps can be destroyed after initialization; this is often done in the \textit{cleanupInit()} method, which is called automatically after scenario initialization.
+
+\subsection{Scenario Operation}
+There are two aspects to the creating the scenario operation. First, there is \textit{performExogenousEvents}, which updates the world. Second, there is \textit{performAgentActions}, which responds to the world. 
+
+Generally, these methods can simply be implemented, and the toolkit will execute them each step. Subscenarios' implementations will be called along with the parent's.
+
+\subsection{Teardown}
+Scenario destructors are optional.
+

@@ -1,0 +1,17 @@
+\begin{lstlisting}[frame=single, language=C++]class JamiiEdgeInfo:
+    public SocialNetwork_CountEdgeInformation<JamiiEventType, 
+    	JamiiEventCounter>{
+	friend class boost::serialization::access;
+
+public:
+	JamiiEdgeInfo();
+
+	virtual ~JamiiEdgeInfo();
+
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int version){
+		SocialNetwork_CountEdgeInformation<JamiiEventType,
+		JamiiEventCounter>::serialize(ar, version);
+	}
+};
+\end{lstlisting}

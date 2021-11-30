@@ -1,0 +1,91 @@
+RHPC SMPLE GAPS
+
+1.0
+   Add Footnote reference to Repast HPC web site (https://repast.github.io/repast_hpc.html) and reference to:
+
+	Collier, N., & North, M. (2013). Parallel agent-based simulation with Repast for High Performance Computing. SIMULATION, 89(10), 1215–1235. https://doi.org/10.1177/0037549712462620.
+
+
+I modified the first two entries in the list of chapters to change the way the hyperref works; it looked odd to me  to just have the chapter number be in blue, so I tried a couple of variations- Chapter 2 (where the name and number of the chapter are the link) and Chapter 3 (where the chapter title is the link). Pick one of these (possibly including the original way) and make them all standard; you may also find that other examples throughout the text can be converted. If it's burdensome we can probably define a command to do it in a simpler way.
+
+
+1.2 Acknowledgements
+	Add: Bruce Miller will have the correct wording and project number for SocialSim.
+        Possible: Move entire 'Acknowledgements' section to its own 'chapter', after the table of contents but still in the Latex 'frontmatter' section.
+
+
+4.3 Demonstrations
+	Add
+4.3.1 Demonstration Platform Implementations
+	Add
+4.3.2 Demonstration Scenarios
+	Add
+
+5.2 Building and Running Parallel Simulations in RHPC SMPL
+	Add
+
+6 Create a New Platform
+	Do any coding examples need changing?
+
+6.1.8 Step 9: Create a Platform Using the Above Objects
+	Refer to notes to add 
+
+7.2.1 Step 1: Create all the Source and Header Files
+	Add
+
+7.2.2 Step 2: Create the Definitions for File Output Type
+	Add
+
+7.2.4 Step 4: Create the Custom Action Description
+	Add
+
+7.2.5 Step 5: Create Agent Behavior Components
+	Add here and sub-steps
+
+7.2.6 Step 6: Create the Feed Query
+	Add
+
+7.2.7 Step 7: Create the Concrete Implementation of the Platform
+	Add
+
+7.2.8 Step 8: Create the Behavior Selector
+	Add
+
+7.2.9 Step 9: Create the InfoIDSelector
+	Add
+
+7.2.10 Step 10: Create the FileWriter
+	Add
+
+ 7.3 UML Diagram
+	Add
+
+7.4 Implementation Sequence
+	Add
+
+8 Create User Agents 
+	Add
+
+9.1.3 Scenario Operation
+	Add?
+
+9.1.4 Teardown 
+	Add
+
+9.1.5 Adding FileWriters to Collect Output 
+	Add
+
+9.3.2 Step 1: Initialization
+	Add
+
+9.3.2 Step 3: Use Properties
+	Add
+
+9.3.4 Step 3: Use Properties
+	Add
+
+Appendix A Benchmarking
+	Add
+
+Appendix B License Information 
+	Add

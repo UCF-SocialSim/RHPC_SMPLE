@@ -1,0 +1,37 @@
+%!TEX root =  RHPC_SMPLE_UsersManual.tex
+
+\chapter{Benchmarking} \label{chap:Benchmarking}
+
+\section{Description of Tests}
+
+\begin{tikzpicture}
+\begin{axis}[
+    title={Sample Graph},
+    xlabel={Processes},
+    ylabel={Time},
+    xmin=0, xmax=35,
+    ymin=0, ymax=60,
+    xtick={0,5,10,15,20,25,30,35},
+    ytick={0,10,20,30,40,50,60},
+    legend pos=north east,
+    ymajorgrids=true,
+    grid style=dashed,
+]
+
+\addplot[
+    color=green,
+    mark=square,
+    ]
+    coordinates {
+    (1,58)(2,29)(4,16)(8,10)(16,9)(32,9)
+    };
+    \legend{Legend}
+    
+\end{axis}
+\end{tikzpicture}
+
+
+\section{Systems}
+\subsection{AWS T2.Large}
+
+

@@ -1,0 +1,48 @@
+%!TEX root =  RHPC_SMPLE_UsersManual.tex
+
+\chapter{Explanations} \label{chap:Explanations}
+
+ \section{Overview}
+The \rhpc platform is designed to allow creation of virtual social media platforms and populations of simulated users. 
+The purposes of simulations can vary, but there is generally a goal of understanding how populations of user-agents interact and evolve given the affordances of a particular platform and the strategies being pursued by both platforms and users.
+ In a simulation, both the platforms and the users are agents.
+ 
+One common simulation strategy is to run multiple variations of the simulation where each variant is determined by a set of parameters, and the set of runs is given by all the possible (or interesting) combinations of these parameters. If the simulation includes stochasticity, then each distinct combination typically needs to be run multiple times in order to establish the range of variance in the results. The set of results across all runs can be subject to statistical analyses to show the likelihood of specific outcomes and the relationships of these outcomes to the parameter values that determine them.
+
+Such a high-level approach is appropriate for many circumstances, but a complementary approach can also be useful. Rather than take a statistical survey of results, insight from the model can be gained from a `deep dive' into the operation of the simulation.
+
+To facilitate this, \rhpc provides a structure called an \textbf{explanation}; instances of explanations can be inserted into the payloads that are exchanged between the simulated platforms and the simulated users. The explanation object can be customized to record specific decisions, such as why a particular piece of content was inserted into a specific user's feed. Decisions can then be recorded and inspected.
+
+This level of inspection is one of the things that differentiates the modeling approach for which \rhpc was created from other approaches, such as machine learning or A/I approaches. By providing a window into why things are happening into the simulation, the simulation can be used in a way that the `black box' of a machine learning approach cannot.
+
+Naturally, the explanations are not only useful for `deep dives'. It is also possible to collect data at a statistical level from explanatory outputs.
+
+\subsection{Implementation}
+The main technical advantage of the explanation object is that it is additive: two explanation objects can be merged, and the result is a record that includes all of the explanations that were in the original pair. This allows for different elements to write to the explanation and for the explanation to accumulate reasons as it moves through the decision pipeline.
+
+Using the explanation object requires extending the explanation base class by adding fields that indicate the different kinds of explanations available to the platform and users. To maintain functionality, extensions to the explanation object must be done in a specific way.
+
+\section{Feed Explanations} 
+\textbf{Feed explanations} allow the platform to record the reasoning used to place specific pieces of content into users' feeds. Examples of reasons might include:
+\begin{itemize}
+\item The content was created by a user that the recipient user follows.
+\item The user queried the platform for content with a specific identifier.
+\item The content was popular among other users the platform considers similar to the recipient.
+\end{itemize}
+
+\section{Action Explanations}
+\textbf{Action explanations} indicate the reasons that a simulated user elected to perform a specific action on a piece of content. Examples of reasons might include:
+\begin{itemize}
+\item The user disagreed with the content.
+\item The user wanted to engage more with the creator of a piece of content and responded.
+\item The user was attempting to disrupt a conversation.
+\end{itemize}
+  
+For an example of both kinds of explanations, see \textit{Twitter\_Feed.h} and \textit{Twitter\_Action.h}.
+  
+ \section{Writing Explanations as Output}
+Writing output from explanations follows the same procedure as writing for actions. Typically, an action responds to a \textit{getRepresentation} request (see Chapter \ref{chap:Output}) with a string that describes the action taken in terms of the actor, the target content, and information about the nature of the content (i.e., \textit{payload}, see Step 5 of Chapter \ref{chap:CreateANewPlatform}). This same approach can accommodate information from the explanation.
+
+One approach is to include explanation information in the same output representation as all of the other information from the action. It is also possible---and sometimes preferable---to direct explanatory output to a separate file. To do this requires creating a different response to the \textit{getRepresentation} request and then creating a new FileWriter that requests that kind of response.
+
+

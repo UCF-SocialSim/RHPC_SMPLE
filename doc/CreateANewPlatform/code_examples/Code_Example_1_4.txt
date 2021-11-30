@@ -1,0 +1,18 @@
+\begin{lstlisting}[frame=single, language=C++]
+class JamiiFeed: public Feed<JamiiAgentType, JamiiEventType, 
+    JamiiFeedExplanation>{
+
+protected:
+	SimpleWeightedSelector* sws;
+
+public:
+
+	JamiiFeed();
+	JamiiFeed(int maxSize);
+	virtual ~JamiiFeed();
+
+	void initiateWeightedSampling();
+
+	JamiiFeedElement getOneSelectedWeighted();
+};
+\end{lstlisting}

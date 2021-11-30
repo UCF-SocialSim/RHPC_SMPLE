@@ -1,0 +1,13 @@
+\begin{lstlisting}[frame=single, language=C++]
+class JamiiFeedExplanation: public Explanation{
+public:
+	bool randomlySelected;
+
+	JamiiFeedExplanation();
+	JamiiFeedExplanation(const JamiiFeedExplanation& orig);
+
+	virtual ~JamiiFeedExplanation();
+
+	virtual std::string getRow();
+};
+\end{lstlisting}

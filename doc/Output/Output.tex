@@ -1,0 +1,76 @@
+%!TEX root =  RHPC_SMPLE_UsersManual.tex
+
+\chapter{Output} \label{chap:Output}
+
+\section{Overview}
+\textit{Writing to files} to collect simulation data is a key operation, as it represents the way in which simulation output becomes data for analysis and the way the simulation's results are made visible for review and use. A simulation that produces no data is of little value.
+
+\par The \rhpc toolkit provides a built-in mechanism for writing output to files. The core of the framework is the \textit{Action} object, which specifies a social media action undertaken by a user agent, and a \textit{FileWriter} object, which directs output of a specific type to a specific file.
+
+\par To make this work, an action should be able to respond to a request via \textit{getOutputRepresentation(type)}, where `type' identifies the kind of output file. The action's response is thus tailored to a type of output file. These `types' are defined in code, and each type refers to a specific output format. For example, one may have three formats:
+
+\begin{itemize}
+  \item A csv file in which the actor and platform-specific action alone are listed
+  \item A csv file in which actor, action, timestamp, and items from the payload are listed, each item on a separate line
+  \item a JSON file in which the actor, action, timestamp and payload are listed, with payload elements as a JSON array
+\end{itemize}
+
+Note that the distinction between the first and second of these is not based on them being csv files (they both are) but simply on the fact that they include different content.
+
+The response that is provided by the action can be one or multiple lines long. Whatever its nature, the FileWriter object will append it to its file.
+
+When a FileWriter is created, it specifies the output type that will be used to collect the actions' responses. It also specifies the destination file to which it points. This can be unique to a single FileWriter, or, alternatively, a single file for output that is shared among multiple FileWriters.
+
+\section{How to Implement Writing to Files}
+Here is a list of procedures for \textbf{writing to files}:
+
+\subsubsection {Step 1: define the kinds of output files in a \textit{definitions} file.}
+\par Example:
+\begin{lstlisting}[frame=single, language=C++]
+enum Twitter_Xamples_FileOutputTypes{
+	TWITTER_XAMPLES_FILEOUTPUT_JSON,
+	TWITTER_XAMPLES_FILEOUTPUT_CSV,
+	TWITTER_XAMPLES_FILEOUTPUTTYPES_META
+};
+\end{lstlisting}	
+
+This defines one format (JSON). The last entry is only used to indicate how many entries the enum contains.
+
+\subsubsection{Step 2: define the \textit{getOutputRepresentation(type)} method in the \textit{action}}
+The \textit{Action} element should be defined to have a \textit{getOutputRepresentation} method that takes one of the enumerated types as an argument. The only requirement of this method is that it takes the type as an argument and returns the text that should be written to the file. This often is a single line (e.g. a line for a CSV file), but can be more than one line if the output formate requires it. The closing end-of-line marker should be included.
+
+
+\subsubsection{Step 3: create an instance of the filewriter that uses the kinds of output files in the \textit{definitions} file}
+Typically this is done during the scenario constructor. A common pattern is to use a typedef in the platform's include file, such as:
+
+\begin{lstlisting}[frame=single, language=C++]
+typedef TypedFileWriter<Twitter_Xamples_FileOutputTypes> 
+       Twitter_FileWriter;
+\end{lstlisting}
+
+Then in the scenario constructor, all that is needed is:
+
+\begin{lstlisting}[frame=single, language=C++]
+Twitter_FileWriter* fileWriter_json 
+      = new Twitter_FileWriter(Twitter_Xamples_FileOutputTypes::
+          TWITTER_XAMPLES_FILEOUTPUT_JSON, 
+          w_outFilename + ".json");
+\end{lstlisting}
+
+Notice that it is passed the output file type that it will use. If multiple output types are needed, multiple instances can be created.
+
+\subsubsection{Step 4: during scenario initialization, add this filewriter to the collection of filewrites in the scenario}
+The platform will have a collection of file writers; the newly created instance should be added to this collection. The collection is a map, and each entry gets a (unique) name, e.g.:
+
+\begin{lstlisting}[frame=single, language=C++]
+	twitter->fileWriters["TWITTER.JSON"] = fileWriter_json;
+\end{lstlisting}
+
+\subsubsection{Step5: call \textit{writeAction} in the platform}
+If the structure above is followed, calls to the platform API will automatically call a function that cycles through all available file writer instances and writes the action to each one.
+
+\subsection{Using multiple writers to a single file}
+In some cases a single simulation will write output from multiple sources (e.g. multiple platforms) to a single output file. This can be easily accommodated by creating the output stream independently, then creating the file writer instances using the alternate constructor that takes a stream as an argument. When this is done, the stream is not managed by any of the individual writers and must be closed independently.
+
+\subsection{Pausing}
+All file writer instances inherit the ability to move from an active to a `paused' state and back. While in the paused state, no output is written. This is useful for processing certain forms of pre-simulation activity, as well as other cases.

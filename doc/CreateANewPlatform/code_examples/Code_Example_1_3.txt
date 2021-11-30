@@ -1,0 +1,5 @@
+\begin{lstlisting}[frame=single, language=C++]
+typedef FeedElement<JamiiAgentType, JamiiEventType, 
+    JamiiFeedExplanation> JamiiFeedElement;
+typedef std::deque<JamiiFeedElement>::iterator JamiiFeedIterator;
+\end{lstlisting}

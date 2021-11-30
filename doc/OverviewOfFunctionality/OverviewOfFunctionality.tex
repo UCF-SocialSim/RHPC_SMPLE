@@ -1,0 +1,83 @@
+%!TEX root =  RHPC_SMPLE_UsersManual.tex
+
+\chapter{Overview of Functionality} \label{chap:OverviewOfFunctionality}
+
+At a high level, the \rhpc toolkit allows creation of simulations of user behavior on social media platforms. Within this high level are a number of specific details that are summarized below.
+
+\section{Overview}
+The \rhpc toolkit is designed to create social media simulations that are conceptually structured as a set of concentric containers:
+
+\begin{itemize}
+\item At the outermost level is the \textbf{model}. A model is a runnable object that can be called by a c++ mainfunction. It executes the overall schedule of the simulation from start to completion.
+\item Each model can contain a \textbf{scenario}. A scenario is a collection of social media platforms and any data that represent the real-world within which those platforms exist (e.g., world news events that will be discussed on the platforms). Scenarios can be nested so that a single scenario can contain multiple other scenarios.
+\item A scenario contains one or more social media platforms.
+\item Platforms contain nodes in a network. Generally, these nodes are of two types:
+\begin{itemize}
+   \item \textbf{Content nodes}, which represent posts to the social media platform, and
+   \item \textbf{User nodes}, which represent user accounts on the social media platforms
+\end{itemize}
+\end{itemize}
+
+
+\section{The Model}
+The model is a container that wraps and guides the overall execution of the simulation. It handles the initialization of all the scenarios it contains (generally just one, but that one could potentially contain other nested scenarios; see below), the initialization of the simulation schedule, the overall management of time within the simulation, and any other required aspects of construction and tear-down.
+
+Commonly, the model object is generic to a particular research project, and this can be written to contain multiple variant scenarios, all of which have time managed in the same way and all of which require similar schedules, initialization, and tear down, so that the scenario objects can be swapped in and out as needed.
+
+\section{Scenarios}
+Scenarios contain platform objects and representations of the real-world within which those platforms exist. The details of platform objects are discussed below. What is meant by the representation of the `real-world' can vary widely from project to project, but some examples could include:
+
+\begin{itemize}
+\item A time series of prices in some commodity, which agents on the platforms could then discuss
+\item A set of news events that occur during the course of the simulation, which agents on the platform could respond to by increasing their activity levels
+\item A time series of outages (accidental or intentional) that prevent some agents from participating in the discussion for periods during the simulation
+\item A collection of specific pieces of information that would be available for discussion by the agents, and/or inserted into conversations on the platforms at specific times
+\end{itemize}
+
+In each of these cases, the scenario would be responsible for initializing the data structure that represents these items and for managing their statuses and changes during the operation of the simulation.
+
+\subsection{Nested Scenarios}
+A scenario can contain other scenarios. This employs several principles:
+
+\begin{itemize}
+\item The model object need only call methods like `initialize' on the outermost parent scenario; parent scenarios pass these downward to their child scenarios, so that all of them are initialized and operated in synchrony.
+\item Information that is available to parent scenarios is also available to child scenarios.
+\item Scenarios can be nested on-the-fly. At run time, a scenario can be designed and implemented such that it may or may not contain child scenarios so that tests can be run with and without the child scenarios. Scenarios can be designed once and re-used in different combinations.
+\end{itemize}
+
+The specific procedures to implement these are discussed in the technical documentation given below.
+
+\section{Platforms}
+The core of the \rhpc toolkit is the ability to construct a social media platforms. The Repast HPC paradigm for creating agent-based models relies on a core container object called a \textbf{context} which serves as the container for all kinds of agents\footnote{This conceptualization is derived from the Repast Java implementation but has a critical difference: in the Java version, contexts can be nested, so that one context can contain another; in Repast HPC this is not true, in part because contexts serve as the instrument for parallelization, a function that would be complicated by this nested structure.}. With a context exist one or more `projections', which contain the information about how agents are related to one another, either in a spatial relationship (e.g. a grid space) or connected in a network. In the \rhpc toolkit, a platform is a wrapper around a context and contains one core projection. The default implementation must only define the nodes that exist in this network, and the characteristics of the network's edges. Edges, for example, can contain `following' relationships among users, or `liking' relationships between users and content, or any other element that the platform needs to fulfill its set of functions.
+
+These functions are constrained and specific, and they exist at two levels. At the generic level, platforms should be able to create new users\footnote{Platforms should also be able to create existing content nodes, especially if the operation is parallelized and the updates are to non-local nodes that are copied on the local process.}, and they should be able to respond to \textbf{queries}, which are requests for information about content or users on the platform. At the specific level, the platform should provide an \textbf{Application Programming Interface} (API) that user account agents can use to perform actions on the platform. These actions will include creating new content, forwarding or sharing existing content, etc., and should reflect the actions available in the real-world simulation being modeled\footnote{The degree to which an implementation of a specific platform's API reflects the real-world API of that platform is a design choice, and the implementation will not necessarily be fully equivalent to the real one.}.
+
+The platform's agency---that is, its ability to be proactive and strategic in managing its relationships with its user accounts---comes from the fact that it is able to strategically respond to queries (by, for example, customizing the results it passes when a specific user account requests information) and that it can respond to requests to its API by making (or declining to make) changes to its network content. The latter can include tracking specific actions on specific content with information that can later be used to respond to queries in strategic ways. For example, if 100 accounts use the platform's API to indicate that they `like' a specific piece of content, then when a user account issues a query to see new content on the platform, the platform can select this popular piece of content over other new elements as a way to drive engagement. Later, it can respond by promoting other content produced by the same user account that originally produced the popular content.
+
+% Internal team note (Don't put in text!): The fact that a platform = a context is one of the tricky parts about parallelizing a RHPC_SMPLE simulation, because RHPC wasn't really designed to have more than one context, so having more than one platform and parallelizing this can be, um, tricky...
+
+\section{Social Media Network Nodes: Content and User Accounts}
+Platforms are fundamentally wrappers for RHPC's network projections, and hence network nodes are central to its operation. The graph used is a directed graph. Nodes can be of two kinds: \textbf{content nodes} and \textbf{user accounts}. The network need not be strictly bipartite: links are possible between any two kinds of nodes; the most common may be links between users and content, but links from content to users, users to users, and content to content are all possible. The network can be used to track these relationships, for example:
+
+\begin{itemize}
+\item User A `liked' Content Z
+\item User A `follows' User B
+\item Content Z was created by User A
+\item Content Z was a quote of Content Y
+\end{itemize}
+
+The development of network edges is a key aspect of creating a \rhpc simulation. The edge data structure should be able to capture these kinds of relationships\footnote{An advanced design can be employed that adds more than one network to a platform. This could be done for performance reasons, e.g. having a separate network that just stores content-to-content relationships may make searching for those relationships faster.} and make them available for use by the API and for responding to queries. 
+
+\subsection{Social Media Content}
+Content nodes represent pieces of content that users have posted on the social media platform. In the abstract, these are placeholders for any component that expresses a relationship among users; their main function is to link user accounts to other user accounts. Without any semantic association, this is the only things that a content node can do.
+
+However, content nodes, in the abstract sense, can be endowed with a \textit{payload}, which represents real content: pieces of information that users can engage with or interact with, share and transmit, and respond to in specific ways. For example, a content node could be endowed with a true-or-false flag representing some issue that some agents are `for' while other agents are `against'. Content that is on one side of the issue may attract specific responses from some agents, and opposite responses from others; the platform can use this to strategically present agents with content of one kind or the other. Richer content (stance on multiple issues, combinations of specific pieces of information, or event full text) is possible; no real limitation is imposed by the \rhpc toolkit.
+
+\subsection{Social Media User Accounts}
+User accounts reflect entities on the social media platform that can respond to information and take action. Actions are undertaken via the API. User accounts are typically agents, with strategies, goals, memories, and other attributes that guide their interactions with the social media platforms and with the other accounts that they encounter through those media. The key element that the \rhpc toolkit is intended to simulate is how agents, pursuing these goals through their varying strategies, are able to use the social media platforms, and the resulting social structure and flow of information.
+
+\subsubsection{People and Bots}
+A specific technical issue in the above discussion is that user accounts on social media platforms are just that: accounts. 
+Typically, these are considered to be `agents', and thus we conceive of them as individuals with memory, action, intent, strategy, or whatever other elements of the social simulation we want to use. However, an account is not a person. In some simulations, it may be preferable to create representations of real-world people; each person, then, can possess and act upon one or more social media accounts\footnote{It is also possible to have a single account that is shared among multiple people (such as different managers of a public-facing corporate account), but this is not discussed here.}. Strategies and other aspects of behavior, including offline interactions, could in this way be implemented across social media platforms, and user accounts would merely be tools that these person objects would use. This design choice may be specific to the project being undertaken. Because it is often difficult to fully link user accounts represented in social media data with real-world individuals who hold multiple accounts, the paradigm in which an account on a platform is the locus of agency (strategy, memory, etc.) is the more common case, but the use of person objects that possess multiple accounts is easily accommodated as well.
+
+Bots, fortunately, are a simpler case, as there is essentially no distinction between a bot and a person, save that the capabilities and strategies of a bot may be very different. For example, a `person' might be implemented such that actions by that person are only undertaken during waking hours of the day, while a bot would have no similar restriction. Bots could in theory control multiple accounts, or they could be implemented as if they were equivalent to user accounts (with no separate `person' class possessing the account), as in the above discussion.

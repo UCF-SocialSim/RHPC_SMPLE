@@ -1,0 +1,52 @@
+\begin{lstlisting}[frame=single, language=C++]
+/* Jamii_Agent.h */
+#ifndef INCLUDE_JAMII_AGENT_H
+#define INCLUDE_JAMII_AGENT_H
+
+#include "socialnetwork_toolkit/SocialNetwork_Platform.h"
+
+#include "Jamii_Definitions.h"
+#include "Jamii_Feed.h"
+
+namespace jamii{
+
+class Jamii; // FORWARD DECLARATION
+
+template<typename ACTIONTYPE>
+class AbstractJamiiAgent: public SocialNetworkNode<JamiiAgentType, 
+	ACTIONTYPE>{
+
+protected:
+	Jamii*                       jamii;
+	boost::shared_ptr<JamiiFeed> myFeed;
+
+public:
+	AbstractJamiiAgent(repast::AgentId id, JamiiAgentType 
+		whichType, ptime dateCreated, SNP* platform,
+		SocialNetwork_AbstractElement
+		<JamiiAgentType>* creator = 0);
+	virtual ~AbstractJamiiAgent();
+
+    virtual void setCurrentRank(int currentRank);
+
+    virtual std::string showName();
+    virtual std::string writeName();
+
+    void placeInFeed(SocialNetwork_AbstractElement	
+    			<JamiiAgentType>* actor,
+    		SocialNetwork_AbstractElement<JamiiAgentType>* 
+			target,
+			SocialNetwork_AbstractElement
+				<JamiiAgentType>* subtarget,
+			JamiiEventType action,
+    		JamiiFeedExplanation fe);
+
+    virtual void setPlatform(SNP* platform);
+
+    int getCountOfFeedElements();
+
+    virtual void selectTarget(ACTIONTYPE& action);
+
+};
+\end{lstlisting}
+

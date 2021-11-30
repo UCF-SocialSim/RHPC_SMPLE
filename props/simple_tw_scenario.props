@@ -1,0 +1,17 @@
+##########################################
+#
+# Props for a Simple Twitter Scenario
+#
+##########################################
+run.group               = Test
+start.time              = 2021.07.01 
+end.time                = 2021.09.01 
+timeInterval            = 2700 
+ScenarioName            = SimpleTwitterScenario 
+event.data              = ./dummy_data/twitter_input_1.csv 
+new.agents.per.step     = 10 
+agents.per.step         = 6
+
+
+
+

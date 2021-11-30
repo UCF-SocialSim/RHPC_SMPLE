@@ -1,0 +1,19 @@
+\begin{lstlisting}[frame=single, language=C++]
+class JamiiActionExplanation: public ActionExplanation
+	<JamiiFeedExplanation>{
+protected:
+	bool becauseOtherUsersLiked;
+
+	std::vector<std::string> headings;
+
+public:
+	JamiiActionExplanation();
+	JamiiActionExplanation(JamiiFeedExplanation feedExp);
+
+	virtual ~JamiiActionExplanation();
+
+	std::string getRow();
+};
+\end{lstlisting}
+
+%Note: 'headings' is going to be eliminated, as will 'getRow()'

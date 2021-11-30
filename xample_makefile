@@ -1,0 +1,91 @@
+include ./xample_models.env
+include ./xample_models.mk
+
+MAIN := Xample_Model.exe
+MPICXX := mpicxx
+
+LDFLAGS := 	-L${RHPC_SMPLE_LIB_DIR} \
+			-L${REPAST_HPC_LIB_DIR} \
+			-L${BOOST_LIB_DIR}\
+			-L${NETCDF_LIB_DIR} \
+			-L${NETCDF_CXX_LIB_DIR} \
+			-L${CURL_LIB_DIR} \
+			
+LIBS := 	${BOOST_LIBS} \
+			${NETCDF_LIBS} \
+			${NETCDF_CXX_LIBS} \
+			${REPAST_HPC_LIBS} \
+			${RHPC_SMPLE_LIBS} \
+			
+INCLUDES = 	-I${RHPC_SMPLE_INCLUDE_DIR} \
+			-I${REPAST_HPC_INCLUDE_DIR} \
+			-I${REPAST_HPC_INCLUDE_RELOGO} \
+			-I${REPAST_HPC_INCLUDE_MAIN} \
+			-I${BOOST_INCLUDE_DIR} \
+			-I${NETCDF_INCLUDE_DIR} \
+			-I${NETCDF_CXX_INCLUDE_DIR} \
+			-I${MPI_INCLUDE_DIR} \
+			-I${INCDIR}
+
+SRCS = $(addprefix $(SRCDIR)/, $(SRCFILES))
+
+OBJS := $(SRCS:.cpp=.o)
+
+LIB := $(shell basename $(CURDIR)).a
+
+# -Wall  turn on all warnings
+# -Wno-deprecated turn off deprecated warning
+#  -DNDEBUG  // Release mode
+#  -DDEBUG   // does not work with RepastHPC
+# -g3 adds lots of debug hooks, -O3 for speed optimization
+MPICXXFLAGS := -Wall -Wno-deprecated -std=c++11 -MMD -MP $(INCLUDES) -Wno-reorder -Wno-unused-variable -Wno-sign-compare -DBOOST_SYSTEM_NO_DEPRECATED
+
+all: MPICXXFLAGS += -O3 -DNDEBUG 
+all: executable
+
+executable: $(MAIN)
+$(MAIN):  $(OBJS)
+	mkdir ${BINDIR} -p
+	mkdir ${OUTDIR} -p
+	mkdir ${LOGDIR} -p
+	$(MPICXX) $(LDFLAGS) -o ${BINDIR}/$(MAIN) $(MPICXXFLAGS) $(OBJS) $(LIBS) 
+
+.PHONY: debug
+debug: MPICXXFLAGS += -O0 -g3 -DDEBUG_CATCH
+debug: executable
+
+.PHONY: logplatforms
+logplatforms: MPICXXFLAGS += -DPLATFORMLOGGING
+logplatforms: executable
+
+.PHONY: allloggingoff
+allloggingoff: MPICXXFLAGS += -DNOCORELOGGING
+allloggingoff: executable
+
+.cpp.o:
+	$(MPICXX) $(LDFLAGS) -c $< -o $@ $(MPICXXFLAGS) $(LIBS)
+
+.PHONY: clean_output_files
+clean_output_files:
+	rm -f ${OUTDIR}/*.csv
+	rm -f ${OUTDIR}/*.txt
+	rm -f ${OUTDIR}/*.json
+	rm -rf ${LOGDIR}
+	rm -f ./OUT*.txt
+
+.PHONY: clean_compiled_files
+clean_compiled_files:
+	rm -f ${BINDIR}/*
+	find ${SRCDIR} -name "*.o" -exec rm {} \;
+	find ${SRCDIR} -name "*.d" -exec rm {} \;
+	find ${SRCDIR} -name "*.a" -exec rm {} \;
+
+.PHONY: clean
+clean: clean_compiled_files clean_output_files
+	rm -f ${SRCDIR}/*.o *.a ${SRCDIR}/*.a *.d ${SRCDIR}/*.d 
+
+.PHONY: depend
+depend: $(SRCS)
+	makedepend -I$(INCDIR) $^
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.

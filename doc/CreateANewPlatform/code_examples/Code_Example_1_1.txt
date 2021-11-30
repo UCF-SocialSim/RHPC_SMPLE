@@ -1,0 +1,25 @@
+\begin{lstlisting}[frame=single, language=C++, caption=Adding Platform Definitions, label=Code_Example_1_1]
+/* Jamii_Definitions.h */
+#ifndef INCLUDE_JAMII_DEFINITIONS_H
+#define INCLUDE_JAMII_DEFINITIONS_H
+
+namespace jamii{
+
+enum JamiiAgentType{
+	USER_AGENT,
+	POST_AGENT
+};
+
+enum JamiiEventType{
+	IDLE,
+	POST,
+	COMMENT,
+	JAMII_EVENT_COUNT   // Used to determine the number/count
+                            // of Enum elements for array access
+};
+
+} // End namespace jamii
+
+
+#endif /* INCLUDE_JAMII_DEFINITIONS_H */
+\end{lstlisting}	

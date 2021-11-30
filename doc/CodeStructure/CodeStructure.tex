@@ -1,0 +1,264 @@
+%!TEX root =  RHPC_SMPLE_UsersManual.tex
+
+\chapter{Code Structure} \label{chap:CodeStructure}
+The \rhpc toolkit distribution includes three major components, and this chapter provides a brief overview of the functionality of each:
+
+\begin{itemize}
+  \item \textbf{Social Network Tool Kit}: This is the core code that provides the fundamental functionality from which social media platform emulators can be built.
+  \item \textbf{Platform Implementations}: This is a collection of platforms with proposed implementations built from the core code.
+  \item \textbf{Demonstrations}: This is a collection of demonstrations constructed from the two components above.
+\end{itemize} 
+
+\section{Social Network Tool Kit}
+
+\subsection{Utilities}
+The \rhpc toolkit includes a small collection of utilities that permit common operations that are not specific to the simulation of online social media behavior but are also not provided in the standard Repast HPC code base. These include:
+
+
+\begin{itemize}
+% Marin: We may not leave this in the code- it's specific to SocialSim, but it's also in the DNA in the upper level code (unfortunately)
+%  \item Standard definitions for file input formats (\textit{FixedOrderEventLog})
+  \item Classes for performing weighted selection (\textit{SimpleWeightedSelector}, \textit{ParameterizedWeightedSelector})
+  \item Standard definitions for return values for successful and unsuccessful completion and exit (\textit{ReturnValues})
+  \item A class for writing output to files (\textit{FileWriter})
+  \item Other utilities (\textit{Utilities})
+\end{itemize}
+
+\subsubsection{Weighted Selection}
+Weighted selection is a common operation in simulations. 
+For example, assume that there are ten agents that have an instance variable called `salary'. 
+The goal is to simulate that agents with a higher salary may perform some action (e.g., buying a luxury item). 
+The simulation to permitted to choose an agent randomly. 
+If an even distribution is used for selection, every agent has an equal probability of being selected:
+
+\begin{equation}
+p_i = C
+\end{equation}
+
+where the probability of agent $i$ being selected is equal to $C$, a constant. However, suppose the selection is weighted based on salary, such that: 
+
+\begin{equation}
+p_i =  \frac{s_i}{\sum\limits_{a=1}^n s_a}
+\end{equation}
+
+That is, the probability of agent $i$ being selected is equal to that agent's salary divided by the sum of all agents' salaries. Assuming salaries of:
+
+\begin{table}[H]
+\begin{center}
+\caption{Agents and Salaries}
+\label{table:AgentsAndSalaries}
+\begin{tabular}{l | r l}
+\hline
+ Agent & Salary \\
+\hline
+  Agent 1  & 20,000 \\
+  Agent 2  & 10,000 \\
+  Agent 3  &  5,000 \\
+  Agent 4  &  5,000 \\
+  Agent 5  &  5,000 \\
+  Agent 6  &  5,000 \\
+  Agent 7  &  5,000 \\
+  Agent 8  &  5,000 \\
+  Agent 9  &  5,000 \\
+  Agent 10 & 5,000 \\
+\end{tabular}
+\end{center}
+\end{table}
+
+The relative probabilities of any agent being selected are easily calculated from the salary values: Agent 1 has twice the probability of being selected as Agent 2, and four times the probability of any of the other agents (3 through 10). In terms of absolute probability, Agent 1 has a probability of $\frac{2}{7}$; this is because the total salary is 70,000, and Agent 1 has 20,000 of this. The others' probabilities are $\frac{1}{7}$ for Agent 2, and half of this ($\frac{1}{14}$) for all other agents.
+
+To achieve weighted selection in the \rhpc code, the SimpleWeightedSelector class can be used. The usage would be in three steps:
+
+\begin{enumerate}
+\item Create the instance.
+\item Add elements to the instance in a specific sequence. The elements are the \textit{values} that should be used as weights. In the example above, this would be the salaries.
+\item Request a selection; the value returned will be the \textit{position} (zero-indexed) in the list of values. 
+\end{enumerate}
+
+Importantly, the SimpleWeightedSelector takes only \textit{integers} as weights. 
+
+The ParameterizedWeightedSelector operates exactly as a SimpleWeightedSelector after the values are added but allows parameters to be added that adjust the values as they are being input. This permits changes of several different kinds:
+
+\begin{itemize}
+\item An exponent can be added, such that the values that are put in are raised to a power. In the above example, this would cause Agents 1 and 2 to be even more heavily weighted. If the exponent was 2, then the weighting for Agent 1 would be 400,000,000; for Agent 2 it would be 100,000,000; and for all the others it would be 25,000,000. This means that the relative weight for Agent 1 would be increased from merely 4 times that of the lowest-salary agents to a factor of 16.
+\item A scalar multiplier can be applied in the ParameterizedWeightedSelector. Doing so does \textit{not} change the relative weightings. Use this for cases where the original weightings are less than one; applying the multiplier transforms these weightings to integers (but truncates digits when doing so, which may make small distinctions between the weightings invisible).
+\item The weighted selector allows the weightings to be adjusted after they have been initialized. One use of this is selection without replacement. If this is needed, then after the selection is made and the index of the selected element is returned, a call can be performed to \textit{clearat()}, which will re-set the weighting at that position to zero. Once the weight is zero, that element cannot be selected again.
+\end{itemize}
+
+\subsubsection{Return Values}
+As a convenience, the toolkit provides a collection of constants that are used throughout the code as return values in the case of unsuccessful termination. Use the ReturnValues.h class as a reference to the meanings of these.
+
+\subsubsection{FileWriter}
+A generic class for writing output to files is provided here; see Chapter \ref{chap:Output} for more on writing to files.
+\par \textbf{\textit{NOTE}}: This class is specific to the \rhpc toolkit. It is not a part of the social media structure, and utilities are not related specifically to the simulation of social media.
+
+\subsubsection{Other Utilities}
+One final class of utilities contains small set of functions that are used in the code. One is a helper function to extract a domain from a full web address. The others relate to setting properties with default values. See Chapter \ref{chap:CreateScenarios} to learn more about setting properties.
+
+\subsection{Core Tools}
+
+\par The core tools of the \rhpc toolkit are contained in the socialnetwork\_toolkit directories. There are 13 header files with four corresponding source files are present.   
+They are shown in Table \ref{table:CoreToolkitFiles}:
+
+\begin{table}[H]
+\begin{center}
+\caption{Core Toolkit Files}
+\label{table:CoreToolkitFiles}
+\begin{tabular}{l | l}
+\hline
+ Header & Source \\
+\hline
+ Action.h & \\
+ BehaviorSelection.h & \\
+ EdgeInformation.h & \\
+ EventCounter.h & \\
+ Explanation.h & \\
+ Feed.h & \\
+ InfoID.h & InfoID.cpp \\
+ InfoIDSelection.h & \\
+ InfoStore.h & InfoStore.cpp \\	
+ Payload.h & Payload.cpp \\
+ Scenario.h & Scenario.cpp \\
+ SocialNetwork\_AbstractElement.h & \\
+ SocialNetwork\_Platform.h & \\
+\end{tabular}
+\end{center}
+\end{table}
+
+The file listed in table \ref{table:CoreToolkitFiles}, and the classes they contain, fall into a few categories: 
+\begin{itemize}  
+\item There are the \textit{core elements} from which platforms and user agents are built:
+   \begin{itemize}
+	\item SocialNetwork\_AbstractElement 
+	\item SocialNetwork\_Platform
+	\item EdgeInformation 
+	\item EventCounter
+   \end{itemize}
+\item There are the \textit{actions that these agents can take}, including content that these actions might convey:
+    \begin{itemize}
+	\item Action
+	\item Payload 
+   \end{itemize}
+\item There are those that deal with units of information that agents may discuss (e.g., hashtags):
+   \begin{itemize}
+	\item InfoID
+	\item InfoIDStore
+	\item InfoIDSelection 
+    \end{itemize}
+\item  There are those that represent the collections of data shared from platforms to users (to which users respond), and any explanatory elements that get transmitted with these collections:
+    \begin{itemize}
+    	\item Feeds
+	\item Explanations
+   \end{itemize}
+\item BehaviorSelection provides a generic structure by which user agents can choose behaviors
+\item Scenarios are containers that include platforms and `real-world' elements and events to which agents and platforms may respond
+\end{itemize}
+
+
+\section{Platform Implementations}
+
+\subsection{Twitter}
+Twitter was founded in 2006 and is now one of the most widely used social media platforms in the world, with more than 192 million active users\footnote{\href{https://s22.q4cdn.com/826641620/files/doc_financials/2020/q4/FINAL-Q4'20-TWTR-Shareholder-Letter.pdf}{https://s22.q4cdn.com/826641620/files/doc\_financials/2020/q4/FINAL-Q4'20-TWTR-Shareholder-Letter.pdf} } and over 500 million messages posted every day\footnote{\href{https://www.dsayce.com/social-media/tweets-day/}{https://www.dsayce.com/social-media/tweets-day/} }.
+\par Twitter is a microblogging platform that allows users to send and receive short posts. 
+The length of these posts, which are called ``tweets", can be up to 140 characters long. In these tweets, users can include emojis, images, videos, and URLs. 
+Original tweets can be ``retweeted", meaning information in a tweet from one user is shared by another user. 
+Thus, retweeting is a quick and easy means of sharing information across wide audiences. 
+A tweet has the capacity to reach a wide number of people. 
+\par Another aspect of tweets are that they can be replied to and quoted. Replying and quoting aren ways of engaging with users by starting, or joining, conversations. 
+Another means of engagement is the ``like" function. By liking, users can show acknowledgement, appreciation, or support for a tweet.
+\par On the real Twitter platform, users can ``follow" other users. Following subscribes a user to another user's tweets. This means that a follower will be able to see tweets on their ``home timeline''. The home timeline shows all of the tweets from all followed users. From here, a user can like, reply, quote, or retweet. Another feature of the real Twitter platform is that it enables the followed and follower users to send direct messages to each other. 
+
+\subsubsection {\rhpc Implementation}
+\par In the \rhpc tool kit, users can undertake four actions: tweet, reply, quote, and retweet. There is no \textit{follow} functionality, nor is there anything akin to a \textit{like}.
+
+\subsection{Telegram}
+Founded in 2013, Telegram is a social media and instant messaging service meant for mass communication, but with a concern for privacy\footnote{\href{https://www.spglobal.com/marketintelligence/en/news-insights/latest-news-headlines/telegram-crosses-500-million-monthly-active-users-62094638}{https://www.spglobal.com/marketintelligence/en/news-insights/latest-news-headlines/telegram-crosses-500-million-monthly-active-users-62094638}}. 
+As of January 2021, Telegram has over 500 million active users.
+In 2021,Telegram was one of the most downloaded apps in Brazil, Malaysia, Russia, the Netherlands, India, Germany, the United Kingdom, Australia, and the United States\footnote{\href{https://backlinko.com/telegram-users}{https://backlinko.com/telegram-users}}.
+In 2019, it was used for Hong Kong protests and by Islamic State extremists\footnote{\href{https://www.businessofapps.com/data/telegram-statistics/}{https://www.businessofapps.com/data/telegram-statistics/}}.
+ \par One feature of Telegram is that it has secret chats. These are end-to-end encrypted conversations, meaning that the conversations are private and cannot be monitored. Telegram also allows file sharing that can be done through these secret, encrypted chats.
+Another feature of Telegram is that it has private and public ``channels". These channels are groups where up to 200,000 users can communicate\footnote{\href{https://www.vox.com/recode/22238755/telegram-messaging-social-media-extremists}{https://www.businessofapps.com/data/telegram-statistics/}}. For private channels, users have to be invited and permitted to join.
+ 
+The \rhpc implementation of Telegram is essentially identical to Twitter, save that the actions available are only 'post' and 'reply'.
+
+\subsection{Reddit}
+Founded in 2005, Reddit is a collection of forums for different topics. 
+There are different communities for different topics, and each community is called a ``subreddit". 
+It is the seventh most popular website in the United Sates{\footnote{\href{https://www.alexa.com/topsites/countries}{https://www.alexa.com/topsites/countries}} and the nineteenth most popular world-wide\footnote{\href{https://www.alexa.com/topsites}{https://www.alexa.com/topsites}}. 
+Reddit is used for sharing content such as news, images videos, and text. 
+These content types are posted to subreddits. 
+There is a searchbar for searching key terms to find posts and subreddits to find content that relates to a given key term. It is also possible to search for users.
+As of 2020, there were about 222 million active users{\footnote{\href{https://www.oberlo.com/blog/reddit-statistics}{https://www.oberlo.com/blog/reddit-statistics}}, and there are more than 46.7 million searchers a day \footnote{\href{https://foundationinc.co/lab/reddit-statistics/}{https://foundationinc.co/lab/reddit-statistics/}} due to the breadth of topics available on Reddit.
+ \par ``Commenting" is a way of engaging with content and other users.
+Comments can be responses to an original post or to other comments. When responding to a post or comment, it is possible for a user to ``quote" part of that comment for the purpose of specifying what is being responded to.
+Also, similar to the ``like" function in Twitter, ``voting'' shows acknowledgement, appreciation, or support  via the ``upvote" function. 
+This also increases visibility. 
+However, there is also a ``downvote" function which is typically used  for when a post is not appropriate for a given subreddit, and this decreases visibility.
+\par Subreddits tend to have their own rules for behavior that are enforced by moderators, or ``mods'', who volunteer to maintain the content and user behavior in the sub.
+\par The homepage shows trending news posts from different subreddits, popular posts from different subreddits, and trending posts from the subreddits to which a user subscribes. A user can subscribe to other users too via the ``follow" function.
+News can be sorted based on interests and date while popular posts from popular and user-selected subreddits can be sorted by upvote-to-downvote ratio, newness, and other features.
+\par In the \rhpc tool kit's Reddit, users can post and comment. 
+While the real Reddit has more user options, posting and commenting have been deemed the essential actions for understanding user behavior regarding spread of information. 
+
+\subsection{Jamii Forums}
+\par Founded in 2006, Jamii is a collection of forums for engaging in free discussions. 
+Based in Tanzania, Jamii is known for its citizen journalism and for being an alternative news source. 
+While there are a variety of forums for different topics, the popular forums discuss political, economic, and social issues as well as current events.
+Jamii is the top most visited website for Swahili speakers around the world, and as such, it is most popular in East Africa\footnote{\href{https://www.zoomtanzania.com/company/jamii-forums}{https://www.zoomtanzania.com/company/jamii-forums}}. 
+As of August 2017, there were ``more than 2.4 Million users, 28 Million mobile subscribers and up to 600,000 people using its online forum daily"\footnote{\href{https://tanzania.mom-rsf.org/en/owners/companies/detail/company//jamii-media-co-limited-1/}{https://tanzania.mom-rsf.org/en/owners/companies/detail/company//jamii-media-co-limited-1/}}.
+ More recently, on June 25, 2020 at 11:42 AM CT, there were 1,554,248 threads, 38,986,717 messages, and 575,354 users\footnote{\href{https://www.jamiiforums.com}{https://www.jamiiforums.com}}.
+\par The homepage consists of lists of forums. 
+From here, it is possible to create new posts, search forums for key terms or users, see new posts and recent activity of other users, and see lists of online users. 
+\par Like Reddit, ``commenting" is a way of engaging with content and other users.
+Comments can be responses to an original post or to other comments. 
+When responding to a post or comment, it is possible for a user to ``quote" part of that comment for the purpose of specifying what is being responded to.
+Also, just as with the ``like" function in Twitter, users can engage with other users and their content via the ``like" function.
+By liking, users can show acknowledgement, appreciation, or support for a post or comment.
+
+The \rhpc implementation of Jamii currently allows only posts, which initiate a thread within a forum, and comments, which belong to that thread. Quoting, which would have the effect of enabling one post to reply directly to another, is not implemented. 
+
+\textbf{\textit{NOTE}}: As a technical detail, the \rhpc Jamii implementation differs from the Reddit implementation in one important way: As a way to ensure performance at very large scales, the Reddit implementation does not treat all content as `first class' content nodes. Instead, all `posts' are full nodes, but `comments' are recorded only as partial records- essentially a notation that something happened, but not a full record of the event. These notes descend from posts in a tree structure (comments of comments), but comments cannot be directly selected as targets of actions. The performance enhancement that this offers is mainly speed in selecting targets, as well as some reduction in the memory footprint of the simulation.
+
+\subsection{YouTube}
+Founded in 2005, YouTube is a site for sharing videos comprised of original content. The most popular types of videos are tutorials, comedy, and music\footnote{\href{https://www.thinkwithgoogle.com/consumer-insights/consumer-trends/top-content-categories-youtube/}{https://www.thinkwithgoogle.com/consumer-insights/consumer-trends/top-content-categories-youtube/}}, but there are other popular genres too. Users can also livestream to other users in real time.
+YouTube is popular worldwide and has local versions for over 100 countries and has over 2 billion regular users. Everyday, users watch ``over a billion hours of video and generate billions of views" \footnote{\href{https://www.youtube.com/intl/en-GB/about/press/}{https://www.youtube.com/intl/en-GB/about/press/}}.
+Additionally, YouTube averages 100 hours of uploaded video per minute{\footnote{\href{https://edu.gcfglobal.org/en/youtube/what-is-youtube/1/}{https://edu.gcfglobal.org/en/youtube/what-is-youtube/1/}}. Videos often have closed-captions that can even be available in multiple languages.
+Aside from hosting videos, YouTube has features that render it a social media platform. Each ``channel" on YouTube is a user's account. Users can subscribe to other users' channels to stay up to date on other users' content. There is also a ``comment" function so that users can comment on videos and reply to other comments. \footnote{However, there is a difficulty in the user interface where people reply as if they are replying to the comment above theirs, but this is actually not the case. This means that there is a reply structure between posts that, in terms of content, should be at the same structural level}.
+Additionally, users can ``like" videos and comments to show acknowledgement, appreciation, or support. Liking boosts the popularity, and therefore visibility, of comments and videos. 
+\par On the homepage are recommended videos based on subscriptions as well as those that the platform thinks the user would like. There is also a section for news videos. 
+
+\subsection{GitHub}
+Founded in 2007, GitHub is a leading code-sharing site. While not a traditional social media site, it is nevertheless a place where people interact online: "Millions of developers and companies build, ship, and maintain their software on GitHub" with over sixty-five million developers and over three million organizations involved \footnote{https://github.com/about}. 
+\par The major features of GitHub are that it enables collaboration and maintaining version control for coding projects. Collaboration involves  four main processes:
+\begin{itemize}
+\item Creation and usage of a `repository' of any and all project parts. This can include data sets, folders, files, images, videos, etc. 
+\item Creation and management of a `branch'. There is always a `main' branch. Branches are used to experiment with changes before `committing' them to the main branch. 
+\item Commits are the way to make changes to a file that are shared across people in a project. Commits are `pushed' to finalize the changes made within a branch.
+\item Pull requests can be opened for merging branches. Making a `pull request' means proposing the contributions a user has made for review so that the changes can be merged into a branch. The @mention system can be used in a pull request message for feedback requests.
+\end{itemize}
+
+% Other actions people can take on GH?
+%What does our tool kit do?
+
+
+
+
+\section{Demonstrations}
+
+\subsection{Demonstration Platform Implementations}
+
+\subsubsection{Foobook}
+
+\subsubsection{Pingstagram}
+
+\subsection{Demonstration Scenarios}
+
+\subsubsection{Scenario 1: Basic Foobook}
+This is the test used for \nameref{chap:Benchmarking}.
+
+\subsubsection{Scenario 2: Foobook with Malicious Users}
+
+\subsubsection{Scenario 3: Foobook and Pingstagram}
+
+\subsubsection{Scenario 4: Foobook and Pingstagram with Coordinated Users}
+
